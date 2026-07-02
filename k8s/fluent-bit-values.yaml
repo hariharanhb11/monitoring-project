@@ -1,0 +1,35 @@
+serviceAccount:
+  create: false
+  name: fluent-bit
+
+config:
+  service: |
+    [SERVICE]
+        Flush        1
+        Daemon       Off
+        Log_Level    info
+
+  inputs: |
+    [INPUT]
+        Name              tail
+        Path              /var/log/containers/*.log
+        Parser            cri
+        Tag               kube.*
+        Refresh_Interval  5
+
+  filters: |
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Merge_Log           On
+        Keep_Log            Off
+        Kube_Tag_Prefix     kube.var.log.containers.
+
+  outputs: |
+    [OUTPUT]
+        Name              cloudwatch_logs
+        Match             *
+        region            us-east-1
+        log_group_name    eks-monitoring-demo
+        log_stream_prefix from-fluent-bit-
+        auto_create_group true

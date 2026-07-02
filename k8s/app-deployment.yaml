@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: monitoring-demo
+  namespace: monitoring
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: monitoring-demo
+
+  template:
+    metadata:
+      labels:
+        app: monitoring-demo
+
+    spec:
+      containers:
+
+      - name: monitoring-demo
+
+        image: 449499558261.dkr.ecr.us-east-1.amazonaws.com/monitoring-demo:v1
+
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 3000
+
+        env:
+
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_HOST
+
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_PORT
+
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: PORT
+
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "300m"
+            memory: "256Mi"
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+
+          initialDelaySeconds: 20
+          periodSeconds: 10

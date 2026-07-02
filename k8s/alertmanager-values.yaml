@@ -1,0 +1,15 @@
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: lambda
+
+    receivers:
+      - name: lambda
+        webhook_configs:
+          - url: "https://loxts3ibiylmjp75lvuwozwf3u0gffus.lambda-url.us-east-1.on.aws/"
+
+    templates:
+      - "/etc/alertmanager/config/*.tmpl"

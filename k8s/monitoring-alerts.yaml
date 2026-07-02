@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+
+metadata:
+  name: monitoring-demo-alerts
+  namespace: monitoring
+
+  labels:
+    release: monitoring
+
+spec:
+
+  groups:
+
+  - name: monitoring-demo.rules
+
+    rules:
+
+    - alert: MonitoringDemoDown
+
+      expr: up{job="monitoring-demo"} == 0
+
+      for: 1m
+
+      labels:
+        severity: critical
+
+      annotations:
+        summary: Monitoring Demo Application Down
+        description: Monitoring Demo application is unreachable.

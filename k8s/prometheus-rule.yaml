@@ -1,0 +1,52 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+
+metadata:
+  name: monitoring-demo-alerts
+  namespace: monitoring
+
+  labels:
+    release: monitoring
+
+spec:
+  groups:
+
+  - name: monitoring-demo.rules
+
+    rules:
+
+    - alert: MonitoringDemoDown
+      expr: absent(up{job="monitoring-demo"})
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: Monitoring Demo Application Down
+        description: Application is unreachable.
+
+    - alert: HighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{namespace="monitoring"}[5m]) > 0.8
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: High CPU Usage
+        description: CPU usage exceeded 80%.
+
+    - alert: HighMemoryUsage
+      expr: container_memory_working_set_bytes{namespace="monitoring"} > 500000000
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: High Memory Usage
+        description: Memory usage exceeded threshold.
+
+    - alert: PodRestarting
+      expr: increase(kube_pod_container_status_restarts_total[5m]) > 2
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: Pod Restarting Frequently
+        description: Pod restarted more than twice.
