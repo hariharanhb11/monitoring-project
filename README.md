@@ -1,472 +1,308 @@
-# Enterprise Kubernetes Monitoring & Centralized Logging on AWS EKS
+# 📊 Enterprise Kubernetes Monitoring & Centralized Logging — AWS EKS
 
-## Project Overview
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![AWS EKS](https://img.shields.io/badge/AWS%20EKS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![Helm](https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white)
+![CloudWatch](https://img.shields.io/badge/CloudWatch-FF4F8B?style=for-the-badge&logo=amazonaws&logoColor=white)
 
-This project demonstrates the implementation of a complete Kubernetes Monitoring and Centralized Logging solution on **Amazon Elastic Kubernetes Service (EKS)** using open-source observability tools.
-
-The primary objective is to monitor the health and performance of a containerized application, Kubernetes cluster, worker nodes, and PostgreSQL database while providing centralized log collection for troubleshooting and operational visibility.
-
-The solution follows production-inspired cloud monitoring practices by integrating Prometheus for metrics collection, Grafana for visualization, Fluent Bit for log forwarding, and Amazon CloudWatch Logs for centralized logging.
+> **Production-grade observability** — Full-stack Kubernetes monitoring and centralized logging on Amazon EKS using Prometheus, Grafana, Fluent Bit, and Amazon CloudWatch Logs.
 
 ---
 
-# Solution Architecture
+## 📌 Project Overview
 
-```text
+This project implements a **complete Kubernetes observability platform** on Amazon EKS covering:
+
+- 📈 **Real-time metrics** collection and visualization
+- 🔔 **Custom alerting** for infrastructure and application health
+- 📋 **Centralized log management** via CloudWatch
+- 🗄️ **PostgreSQL database monitoring**
+- ☸️ **Cluster, node, pod, and deployment visibility**
+
+Built following **production DevOps and SRE practices** using industry-standard open-source tools.
+
+---
+
+## 🧠 Solution Architecture
+
+```
                               Users
                                 │
                                 ▼
-                      AWS Application Load Balancer
+                  AWS Application Load Balancer
                                 │
                                 ▼
-                  Monitoring Demo Application (Node.js)
+              Monitoring Demo Application (Node.js)
                                 │
-         ┌──────────────────────┴──────────────────────┐
-         │                                             │
-         ▼                                             ▼
-   Prometheus Server                              Fluent Bit
-         │                                             │
-         ▼                                             ▼
-      Grafana Dashboards                    Amazon CloudWatch Logs
-         │
-         ▼
-  Kubernetes Metrics & Application Metrics
-         │
-         ▼
-     PostgreSQL Database
+           ┌────────────────────┴────────────────────┐
+           │                                         │
+           ▼                                         ▼
+    Prometheus Server                           Fluent Bit
+           │                                         │
+           ▼                                         ▼
+   Grafana Dashboards                   Amazon CloudWatch Logs
+           │
+    ┌──────┴──────┐
+    ▼             ▼
+Kubernetes    Application
+ Metrics       Metrics
+    │
+    ▼
+PostgreSQL Database
 ```
 
 ---
 
-# Objectives
+## 🛠️ Technology Stack
 
-The project implements the following observability capabilities:
-
-* Kubernetes Cluster Monitoring
-* Node Health Monitoring
-* Pod Health Monitoring
-* Application Monitoring
-* CPU Monitoring
-* Memory Monitoring
-* Filesystem Monitoring
-* Network Monitoring
-* API Metrics Monitoring
-* PostgreSQL Monitoring
-* Custom Prometheus Alert Rules
-* Centralized Log Collection
-* Cloud-Based Log Storage
-
----
-
-# Technology Stack
-
-| Category                | Technology              |
-| ----------------------- | ----------------------- |
-| Cloud Platform          | AWS                     |
-| Container Orchestration | Kubernetes (Amazon EKS) |
-| Container Runtime       | Docker                  |
-| Application             | Node.js                 |
-| Database                | PostgreSQL              |
-| Monitoring              | Prometheus              |
-| Visualization           | Grafana                 |
-| Node Metrics            | Node Exporter           |
-| Kubernetes Metrics      | kube-state-metrics      |
-| Service Discovery       | ServiceMonitor          |
-| Alert Rules             | PrometheusRule          |
-| Logging                 | Fluent Bit              |
-| Log Storage             | Amazon CloudWatch Logs  |
-| Package Manager         | Helm                    |
+| Category | Technology |
+|---|---|
+| **Cloud Platform** | AWS |
+| **Container Orchestration** | Kubernetes (Amazon EKS) |
+| **Container Runtime** | Docker |
+| **Application** | Node.js |
+| **Database** | PostgreSQL |
+| **Metrics Collection** | Prometheus |
+| **Visualization** | Grafana |
+| **Node Metrics** | Node Exporter |
+| **Kubernetes Metrics** | kube-state-metrics |
+| **Service Discovery** | ServiceMonitor (Prometheus Operator) |
+| **Alert Rules** | PrometheusRule |
+| **Log Forwarding** | Fluent Bit (DaemonSet) |
+| **Log Storage** | Amazon CloudWatch Logs |
+| **Package Manager** | Helm |
 
 ---
 
-# Project Structure
+## 📁 Project Structure
 
-```text
+```
 monitoring-demo/
-│
 ├── app/
 │   ├── Dockerfile
 │   ├── package.json
-│   ├── server.js
-│   └── ...
+│   └── server.js                  # Node.js app with /metrics endpoint
 │
 ├── k8s/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── postgres.yaml
-│   ├── servicemonitor.yaml
-│   ├── prometheus-rule.yaml
-│   ├── namespace.yaml
-│   └── ...
+│   ├── namespace.yaml             # Namespace definition
+│   ├── deployment.yaml            # Application deployment
+│   ├── service.yaml               # Service + Load Balancer
+│   ├── postgres.yaml              # PostgreSQL deployment
+│   ├── servicemonitor.yaml        # Prometheus auto-discovery
+│   └── prometheus-rule.yaml       # Custom alert rules
 │
-├── screenshots/
-│
-├── architecture/
-│
-├── docs/
-│
+├── screenshots/                   # Dashboard and validation screenshots
+├── architecture/                  # Architecture diagrams
+├── docs/                          # Additional documentation
 └── README.md
 ```
 
 ---
 
-# Solution Components
+## 🔍 Solution Components
 
-## Amazon EKS
-
-Amazon EKS hosts the Kubernetes cluster that runs the monitoring application, PostgreSQL database, Prometheus stack, Grafana, Fluent Bit, and supporting monitoring components.
-
----
-
-## Monitoring Demo Application
-
-A containerized Node.js application deployed on Kubernetes.
-
-The application exposes Prometheus metrics through the `/metrics` endpoint, allowing Prometheus to scrape application metrics.
+### ☸️ Amazon EKS
+Hosts the Kubernetes cluster running all workloads — the demo application, PostgreSQL, Prometheus, Grafana, Fluent Bit, and all supporting monitoring components.
 
 ---
 
-## PostgreSQL Database
-
-A PostgreSQL database deployed inside the Kubernetes cluster provides persistent storage for the application.
-
----
-
-## Prometheus
-
-Prometheus continuously scrapes metrics from Kubernetes components and the monitoring application.
-
-Collected metrics include:
-
-* Application Metrics
-* CPU Usage
-* Memory Usage
-* Network Statistics
-* Filesystem Usage
-* Kubernetes Cluster Metrics
-* Node Metrics
-* Pod Metrics
+### 📦 Monitoring Demo Application (Node.js)
+A containerized application deployed on Kubernetes that exposes a **`/metrics` endpoint** for Prometheus scraping.
 
 ---
 
-## Grafana
+### 📡 Prometheus
+Continuously scrapes metrics from Kubernetes components and the application.
 
-Grafana provides interactive dashboards for visualizing collected metrics.
+**Collected metrics:**
 
-The following dashboards were imported:
-
-### Node Exporter Dashboard (ID: 1860)
-
-Provides:
-
-* CPU Usage
-* Memory Usage
-* Filesystem Usage
-* Network Traffic
-* Disk Usage
-* System Load
+| Source | Metrics |
+|---|---|
+| Application | HTTP requests, API metrics, response times, uptime |
+| Node | CPU, memory, disk, network, load average |
+| Kubernetes | Pod status, deployment health, replica counts |
 
 ---
 
-### Kubernetes Cluster Dashboard (ID: 15757)
+### 📊 Grafana Dashboards
 
-Provides:
+Four production-grade dashboards imported and validated:
 
-* Cluster Health
-* Nodes
-* Namespaces
-* Pod Distribution
-* Resource Utilization
-
----
-
-### Kubernetes Pod Dashboard (ID: 6417)
-
-Provides:
-
-* Pod CPU
-* Pod Memory
-* Pod Network
-* Pod Restarts
-* Container Statistics
+| Dashboard | Grafana ID | Metrics Covered |
+|---|---|---|
+| **Node Exporter Full** | `1860` | CPU, memory, filesystem, network, disk, system load |
+| **Kubernetes Cluster** | `15757` | Cluster health, nodes, namespaces, pod distribution, resource utilization |
+| **Kubernetes Pod** | `6417` | Pod CPU, memory, network, restarts, container stats |
+| **Kubernetes Deployment** | `8588` | Deployment health, replica availability, deployment status |
 
 ---
 
-### Kubernetes Deployment Dashboard (ID: 8588)
+### 🔔 Custom Prometheus Alert Rules
 
-Provides:
+Four alert rules deployed via `PrometheusRule`:
 
-* Deployment Health
-* Replica Availability
-* Deployment Status
-* Replica Count
+| Alert | Condition |
+|---|---|
+| `MonitoringDemoDown` | Application is unreachable |
+| `HighCPUUsage` | CPU usage exceeds threshold |
+| `HighMemoryUsage` | Memory usage exceeds threshold |
+| `PodRestarting` | Pod restart count increasing |
 
----
-
-## Node Exporter
-
-Node Exporter exposes operating system metrics for worker nodes.
-
-Metrics include:
-
-* CPU
-* Memory
-* Filesystem
-* Disk
-* Network
-* Load Average
+> Alerts were validated by scaling the deployment to zero and confirming the `Firing` state in Prometheus.
 
 ---
 
-## kube-state-metrics
+### 🪵 Fluent Bit (Log Forwarding)
 
-Provides Kubernetes object metrics including:
+Runs as a **DaemonSet** on every EKS worker node.
 
-* Deployments
-* ReplicaSets
-* StatefulSets
-* Pods
-* Nodes
-* Services
-* Namespaces
-
----
-
-## ServiceMonitor
-
-ServiceMonitor enables Prometheus Operator to automatically discover and scrape the monitoring application without manually editing Prometheus configuration.
-
----
-
-## PrometheusRule
-
-Custom alert rules were created for monitoring application health.
-
-Configured alerts include:
-
-* MonitoringDemoDown
-* HighCPUUsage
-* HighMemoryUsage
-* PodRestarting
-
-These alerts are evaluated continuously by Prometheus.
-
----
-
-## Fluent Bit
-
-Fluent Bit runs as a DaemonSet on every Kubernetes worker node.
-
-Responsibilities include:
-
-* Collecting container logs
-* Reading Kubernetes metadata
-* Forwarding logs to CloudWatch
-
----
-
-## Amazon CloudWatch Logs
-
-CloudWatch serves as the centralized log storage solution.
-
-Benefits include:
-
-* Centralized log management
-* Application troubleshooting
-* Kubernetes log collection
-* Historical log analysis
-
----
-
-# Monitoring Workflow
-
-```text
-Application
-      │
-      ▼
-Prometheus
-      │
-      ▼
-Grafana
 ```
-
-Prometheus continuously scrapes metrics from Kubernetes and the monitoring application.
-
-Grafana queries Prometheus and visualizes the collected metrics using interactive dashboards.
-
----
-
-# Logging Workflow
-
-```text
 Kubernetes Pods
       │
-      ▼
-Fluent Bit
+      ▼  (reads container logs + Kubernetes metadata)
+ Fluent Bit
       │
       ▼
 Amazon CloudWatch Logs
 ```
 
-Fluent Bit collects container logs from every worker node and forwards them to CloudWatch Logs for centralized storage and analysis.
+Responsibilities:
+- Collects all container logs from worker nodes
+- Enriches logs with Kubernetes pod/namespace metadata
+- Forwards to CloudWatch Log Groups in real time
 
 ---
 
-# Metrics Monitored
+### ☁️ Amazon CloudWatch Logs
 
-## Infrastructure Metrics
+Serves as the **centralized log storage** layer.
 
-* CPU Utilization
-* Memory Utilization
-* Disk Usage
-* Filesystem Usage
-* Network Traffic
-* Node Load
-
----
-
-## Kubernetes Metrics
-
-* Node Status
-* Pod Status
-* Deployment Health
-* Replica Count
-* Namespace Usage
-* Container Status
+Benefits:
+- Single pane for all container logs across the cluster
+- Historical log retention and search
+- Application troubleshooting without `kubectl exec`
+- Audit trail for all workloads
 
 ---
 
-## Application Metrics
+## 📈 Metrics Coverage
 
-* Application Availability
-* HTTP Requests
-* API Metrics
-* Response Metrics
-* Application Uptime
+### Infrastructure Metrics
+- CPU Utilization
+- Memory Utilization
+- Disk & Filesystem Usage
+- Network Traffic
+- Node Load Average
 
----
+### Kubernetes Metrics
+- Node / Pod / Container Status
+- Deployment & ReplicaSet Health
+- Namespace Resource Usage
+- Pod Restart Counts
 
-## Database Metrics
+### Application Metrics
+- HTTP Request Rate
+- API Response Metrics
+- Application Availability & Uptime
 
-* PostgreSQL Availability
-* Database Connectivity
-* Database Health
-
----
-
-# Validation
-
-The monitoring solution was validated using the following checks.
-
-## Application Validation
-
-* Application successfully deployed on Amazon EKS.
-* Application accessible through AWS Load Balancer.
-* Metrics endpoint successfully exposed.
+### Database Metrics
+- PostgreSQL Availability
+- Database Connectivity
+- Database Health Status
 
 ---
 
-## Prometheus Validation
+## ✅ Validation Summary
 
-* Prometheus successfully discovered the application through ServiceMonitor.
-* Application targets reported as **UP**.
-* Metrics successfully scraped.
-
----
-
-## Grafana Validation
-
-The imported dashboards successfully displayed:
-
-* Node Metrics
-* Cluster Metrics
-* Pod Metrics
-* Deployment Metrics
-
-Real-time updates were verified by generating application traffic.
+| Component | Validation |
+|---|---|
+| **Application** | Deployed on EKS, accessible via AWS Load Balancer, `/metrics` endpoint active |
+| **Prometheus** | ServiceMonitor discovery working, targets reported `UP`, metrics scraping confirmed |
+| **Grafana** | All 4 dashboards rendering live data, real-time updates verified via traffic generation |
+| **Alerts** | `MonitoringDemoDown` alert transitioned to `Firing` on deployment scale-down |
+| **Fluent Bit** | Container logs collected and forwarded to CloudWatch Log Groups |
+| **CloudWatch** | Logs visible and searchable across all application pods |
 
 ---
 
-## Traffic Generation
+## 🔄 Monitoring & Logging Workflows
 
-Application traffic was generated using repeated HTTP requests.
+### Metrics Flow
 
-This verified:
+```
+Application /metrics endpoint
+          │
+          ▼
+    Prometheus scrape
+          │
+          ▼
+   Grafana dashboards
+          │
+          ▼
+   Alert rules evaluated
+```
 
-* Live Prometheus metrics
-* Dynamic Grafana graphs
-* API request activity
+### Logging Flow
 
----
-
-## Logging Validation
-
-Application logs were successfully collected and stored in Amazon CloudWatch Logs.
-
-Centralized logging was verified through CloudWatch Log Groups.
-
----
-
-## Alert Validation
-
-Custom Prometheus alert rules were deployed successfully.
-
-Application availability alerts were validated by temporarily scaling the deployment down and observing the alert transition to the **Firing** state in Prometheus.
-
----
-
-# Features
-
-* Amazon EKS Deployment
-* Kubernetes Native Monitoring
-* Prometheus Metrics Collection
-* Grafana Visualization
-* Node Monitoring
-* Pod Monitoring
-* Deployment Monitoring
-* Application Monitoring
-* PostgreSQL Integration
-* Custom Alert Rules
-* Centralized Logging
-* CloudWatch Integration
-* Helm-based Deployment
+```
+Pod stdout / stderr
+          │
+          ▼
+   Fluent Bit DaemonSet
+   (+ Kubernetes metadata)
+          │
+          ▼
+  CloudWatch Log Groups
+```
 
 ---
 
-# Benefits
+## 🚀 Future Enhancements
 
-* Real-time Infrastructure Monitoring
-* Centralized Metrics Collection
-* Kubernetes Health Visibility
-* Performance Analysis
-* Faster Incident Troubleshooting
-* Production-Oriented Monitoring Architecture
-* Centralized Log Management
-* Scalable Observability Platform
+The platform can be extended with:
 
----
-
-# Future Enhancements
-
-The solution can be extended with additional enterprise capabilities such as:
-
-* Alertmanager Email Notifications
-* Amazon SNS Integration
-* Slack Notifications
-* Microsoft Teams Notifications
-* Amazon Managed Prometheus
-* Amazon Managed Grafana
-* Loki for Log Aggregation
-* Jaeger Distributed Tracing
-* OpenTelemetry Integration
-* Advanced PostgreSQL Monitoring
-* Custom Business Metrics
+| Enhancement | Description |
+|---|---|
+| **Alertmanager** | Email / PagerDuty / Slack / Teams notifications |
+| **Amazon Managed Prometheus** | Fully managed Prometheus at scale |
+| **Amazon Managed Grafana** | Managed Grafana with IAM integration |
+| **Loki** | Kubernetes-native log aggregation |
+| **Jaeger / Tempo** | Distributed tracing across microservices |
+| **OpenTelemetry** | Unified metrics, logs, and traces pipeline |
+| **Advanced PostgreSQL Monitoring** | `pg_stat_statements`, query performance, connection pools |
+| **Custom Business Metrics** | Application-level KPIs exposed via Prometheus client |
 
 ---
 
-# Conclusion
+## 🎓 Key Takeaways
 
-This project demonstrates an end-to-end Kubernetes observability platform built on Amazon EKS using Prometheus, Grafana, Fluent Bit, and Amazon CloudWatch Logs.
+- **ServiceMonitor** eliminates manual Prometheus config — Prometheus Operator handles service discovery automatically
+- **DaemonSet for Fluent Bit** ensures no node is ever missed for log collection
+- **Node Exporter + kube-state-metrics** together give full coverage — OS-level and Kubernetes-object-level metrics
+- **PrometheusRule** keeps alert definitions version-controlled alongside the application code
+- **CloudWatch** integration enables log access without direct cluster access — critical for ops and security teams
 
-The implemented solution provides comprehensive visibility into infrastructure, Kubernetes resources, application performance, and centralized logging. By combining real-time metrics collection, dashboard visualization, custom alert rules, and cloud-native log management, the project showcases a production-inspired monitoring architecture that aligns with modern DevOps and Site Reliability Engineering (SRE) practices.
+---
+
+## 🏁 Summary
+
+This project delivers an **end-to-end Kubernetes observability platform** covering metrics, visualization, alerting, and centralized logging — all running on Amazon EKS.
+
+| ✅ Capability | Tool |
+|---|---|
+| Metrics Collection | Prometheus |
+| Visualization | Grafana |
+| Node Monitoring | Node Exporter |
+| Kubernetes Object Metrics | kube-state-metrics |
+| Alert Rules | PrometheusRule |
+| Log Forwarding | Fluent Bit |
+| Centralized Log Storage | Amazon CloudWatch Logs |
+| Deployment | Helm |
+
+---
+
+*Platform: Amazon EKS | Observability Stack: Prometheus · Grafana · Fluent Bit · CloudWatch*
+*Architecture: Production-inspired DevOps / SRE monitoring practices*
 
