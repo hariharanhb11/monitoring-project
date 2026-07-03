@@ -1,216 +1,206 @@
-# Kubernetes Architecture
+# ☸️ Kubernetes Architecture
 
-## Overview
+## Cluster Overview
 
-This project is deployed on a single Amazon EKS cluster running in the **us-east-1 (N. Virginia)** region.
-
-The Kubernetes cluster hosts the application, PostgreSQL database, Prometheus monitoring stack, Grafana dashboards, and supporting monitoring components.
+| Detail | Value |
+|---|---|
+| **Cloud Provider** | AWS |
+| **Platform** | Amazon EKS |
+| **Cluster Name** | `monitoring-cluster` |
+| **Region** | `us-east-1` (N. Virginia) |
+| **Kubernetes Version** | `v1.31.14-eks-7d6f6ec` |
 
 ---
 
-# Cluster Summary
+## 📊 Resource Summary
 
 | Resource | Count |
-|----------|------:|
-| Kubernetes Cluster | 1 |
-| Worker Nodes | 3 |
-| Namespaces | 2 (kube-system, monitoring) |
-| Deployments | 8 |
-| StatefulSets | 2 |
-| DaemonSets | 4 |
-| Services | 15 |
-| Persistent Volume Claims | 1 |
-| LoadBalancer Services | 1 |
-| Ingress | 0 |
+|---|---|
+| **Worker Nodes** | 3 |
+| **Total Pods** | 25 |
+| **Namespaces** | 2 |
+| **Deployments** | 8 |
+| **StatefulSets** | 2 |
+| **DaemonSets** | 4 (active) |
+| **Services** | 20 |
+| **LoadBalancer Services** | 1 |
+| **Persistent Volume Claims** | 1 |
+| **Ingress** | 0 |
 
 ---
 
-# Worker Nodes
+## 🖥️ Worker Nodes
 
-The EKS cluster consists of three EC2 worker nodes.
+| Node | Status | Version | Age |
+|---|---|---|---|
+| `ip-192-168-15-237.ec2.internal` | ✅ Ready | v1.31.14-eks-7d6f6ec | 21h |
+| `ip-192-168-5-92.ec2.internal` | ✅ Ready | v1.31.14-eks-7d6f6ec | 5h |
+| `ip-192-168-59-227.ec2.internal` | ✅ Ready | v1.31.14-eks-7d6f6ec | 29h |
 
-| Node |
-|------|
-| ip-192-168-15-237 |
-| ip-192-168-5-92 |
-| ip-192-168-59-227 |
-
-Each worker node runs:
-
-- kube-proxy
-- AWS VPC CNI
-- EBS CSI Driver
-- Prometheus Node Exporter
+Each node runs: `kube-proxy` · `aws-node (VPC CNI)` · `ebs-csi-node` · `node-exporter`
 
 ---
 
-# Namespaces
+## 📦 Pods — All Namespaces (25 Total)
 
-## kube-system
+### `kube-system` — 14 Pods
 
-Contains Kubernetes system components.
+| Pod | Ready | Status |
+|---|---|---|
+| `aws-node-qn96l` | 2/2 | ✅ Running |
+| `aws-node-s62qx` | 2/2 | ✅ Running |
+| `aws-node-v8955` | 2/2 | ✅ Running |
+| `coredns-79767d7cc-f8zlh` | 1/1 | ✅ Running |
+| `coredns-79767d7cc-nq8zl` | 1/1 | ✅ Running |
+| `ebs-csi-controller-74f6678474-sf9hk` | 6/6 | ✅ Running |
+| `ebs-csi-controller-74f6678474-xpjmg` | 6/6 | ✅ Running |
+| `ebs-csi-node-8hmrg` | 3/3 | ✅ Running |
+| `ebs-csi-node-9lh2s` | 3/3 | ✅ Running |
+| `ebs-csi-node-nxt6q` | 3/3 | ✅ Running |
+| `kube-proxy-f42r9` | 1/1 | ✅ Running |
+| `kube-proxy-f4frh` | 1/1 | ✅ Running |
+| `kube-proxy-n47j9` | 1/1 | ✅ Running |
+| `metrics-server-84c7d8c58-8c42d` | 1/1 | ✅ Running |
 
-Resources include:
+### `monitoring` — 11 Pods
 
-- CoreDNS
-- kube-proxy
-- AWS VPC CNI
-- EBS CSI Driver
-- Metrics Server
-
----
-
-## monitoring
-
-Contains the monitoring solution.
-
-Resources include:
-
-- Monitoring Demo Application
-- PostgreSQL
-- Prometheus
-- Alertmanager
-- Grafana
-- Prometheus Operator
-- kube-state-metrics
-- Node Exporter
-
----
-
-# Deployments
-
-| Deployment | Replicas |
-|------------|---------:|
-| monitoring-demo | 2 |
-| postgres | 1 |
-| monitoring-grafana | 1 |
-| monitoring-kube-prometheus-operator | 1 |
-| monitoring-kube-state-metrics | 1 |
-| coredns | 2 |
-| metrics-server | 1 |
-| ebs-csi-controller | 2 |
+| Pod | Ready | Status |
+|---|---|---|
+| `alertmanager-monitoring-kube-prometheus-alertmanager-0` | 2/2 | ✅ Running |
+| `monitoring-demo-f69c77d74-cxxnb` | 1/1 | ✅ Running |
+| `monitoring-demo-f69c77d74-qkscz` | 1/1 | ✅ Running |
+| `monitoring-grafana-846bf585cd-srh8p` | 3/3 | ✅ Running |
+| `monitoring-kube-prometheus-operator-7474dc5856-ksvnc` | 1/1 | ✅ Running |
+| `monitoring-kube-state-metrics-8588bb4b88-clgkf` | 1/1 | ✅ Running |
+| `monitoring-prometheus-node-exporter-4jsjd` | 1/1 | ✅ Running |
+| `monitoring-prometheus-node-exporter-5wrrm` | 1/1 | ✅ Running |
+| `monitoring-prometheus-node-exporter-7pnn2` | 1/1 | ✅ Running |
+| `postgres-995685b97-p7cmv` | 1/1 | ✅ Running |
+| `prometheus-monitoring-kube-prometheus-prometheus-0` | 2/2 | ✅ Running |
 
 ---
 
-# StatefulSets
+## 🚀 Deployments (8 Total)
 
-| StatefulSet | Purpose |
-|-------------|---------|
-| Prometheus | Metrics storage |
-| Alertmanager | Alert management |
-
----
-
-# DaemonSets
-
-DaemonSets run one pod on every worker node.
-
-| DaemonSet | Purpose |
-|-----------|---------|
-| aws-node | AWS VPC CNI |
-| kube-proxy | Kubernetes networking |
-| ebs-csi-node | EBS volume management |
-| monitoring-prometheus-node-exporter | Node metrics collection |
-
-Current Node Exporter Pods:
-
-- 3 Pods (One per worker node)
+| Namespace | Deployment | Ready | Available |
+|---|---|---|---|
+| `kube-system` | `coredns` | 2/2 | ✅ 2 |
+| `kube-system` | `ebs-csi-controller` | 2/2 | ✅ 2 |
+| `kube-system` | `metrics-server` | 1/1 | ✅ 1 |
+| `monitoring` | `monitoring-demo` | 2/2 | ✅ 2 |
+| `monitoring` | `monitoring-grafana` | 1/1 | ✅ 1 |
+| `monitoring` | `monitoring-kube-prometheus-operator` | 1/1 | ✅ 1 |
+| `monitoring` | `monitoring-kube-state-metrics` | 1/1 | ✅ 1 |
+| `monitoring` | `postgres` | 1/1 | ✅ 1 |
 
 ---
 
-# Services
+## 🗂️ StatefulSets (2 Total)
 
-The project exposes the following important services.
-
-| Service | Type |
-|----------|------|
-| monitoring-demo | LoadBalancer |
-| Prometheus | ClusterIP |
-| Grafana | ClusterIP |
-| PostgreSQL | ClusterIP |
-| Alertmanager | ClusterIP |
-| kube-state-metrics | ClusterIP |
-| Node Exporter | ClusterIP |
+| Namespace | StatefulSet | Ready | Purpose |
+|---|---|---|---|
+| `monitoring` | `prometheus-monitoring-kube-prometheus-prometheus` | 1/1 | Metrics storage |
+| `monitoring` | `alertmanager-monitoring-kube-prometheus-alertmanager` | 1/1 | Alert management |
 
 ---
 
-# Storage
+## 👾 DaemonSets (4 Active)
 
-Persistent storage is provided using Amazon EBS.
-
-| PVC | Capacity |
-|-----|---------:|
-| postgres-pvc | 5 GiB |
-
-Storage Class:
-
-- gp2
+| Namespace | DaemonSet | Desired | Ready | Purpose |
+|---|---|---|---|---|
+| `kube-system` | `aws-node` | 3 | 3 | AWS VPC CNI networking |
+| `kube-system` | `kube-proxy` | 3 | 3 | Kubernetes networking |
+| `kube-system` | `ebs-csi-node` | 3 | 3 | EBS volume management |
+| `monitoring` | `monitoring-prometheus-node-exporter` | 3 | 3 | Node metrics collection |
 
 ---
 
-# Monitoring Architecture
+## 🌐 Services (20 Total)
 
-Prometheus collects metrics from:
+### `monitoring` Namespace
 
-- Kubernetes Nodes
-- kube-state-metrics
-- Node Exporter
-- Monitoring Demo Application
-- Kubernetes API
-- Control Plane Components
+| Service | Type | Cluster IP | External IP / Port |
+|---|---|---|---|
+| `monitoring-demo` | **LoadBalancer** | `10.100.194.162` | `a8d5ae08...us-east-1.elb.amazonaws.com:80` |
+| `monitoring-grafana` | ClusterIP | `10.100.113.117` | Port `80` |
+| `monitoring-kube-prometheus-prometheus` | ClusterIP | `10.100.78.13` | Port `9090` |
+| `monitoring-kube-prometheus-alertmanager` | ClusterIP | `10.100.202.178` | Port `9093` |
+| `monitoring-kube-prometheus-operator` | ClusterIP | `10.100.166.200` | Port `443` |
+| `monitoring-kube-state-metrics` | ClusterIP | `10.100.66.139` | Port `8080` |
+| `monitoring-prometheus-node-exporter` | ClusterIP | `10.100.176.186` | Port `9100` |
+| `postgres` | ClusterIP | `10.100.32.134` | Port `5432` |
+| `prometheus-operated` | ClusterIP (Headless) | None | Port `9090` |
+| `alertmanager-operated` | ClusterIP (Headless) | None | Port `9093` |
 
-Grafana visualizes metrics using Prometheus as the data source.
+### `kube-system` Namespace
+
+| Service | Type | Purpose |
+|---|---|---|
+| `kube-dns` | ClusterIP | DNS resolution (`53/UDP`, `53/TCP`) |
+| `metrics-server` | ClusterIP | Kubernetes Metrics API |
+| `monitoring-kube-prometheus-kubelet` | ClusterIP (Headless) | Kubelet metrics scraping |
+| `monitoring-kube-prometheus-coredns` | ClusterIP (Headless) | CoreDNS metrics |
+| `monitoring-kube-prometheus-kube-proxy` | ClusterIP (Headless) | kube-proxy metrics |
+| `monitoring-kube-prometheus-kube-etcd` | ClusterIP (Headless) | etcd metrics |
+| `monitoring-kube-prometheus-kube-scheduler` | ClusterIP (Headless) | Scheduler metrics |
+| `monitoring-kube-prometheus-kube-controller-manager` | ClusterIP (Headless) | Controller manager metrics |
+| `eks-extension-metrics-api` | ClusterIP | EKS extension metrics |
 
 ---
 
-# Traffic Flow
+## 💾 Persistent Storage
 
+| PVC | Namespace | Capacity | Mode | Storage Class | Status |
+|---|---|---|---|---|---|
+| `postgres-pvc` | `monitoring` | `5 GiB` | RWO | `gp2` | ✅ Bound |
+
+---
+
+## 🔄 Traffic & Monitoring Flow
+
+```
 User
-
-↓
-
-AWS Load Balancer
-
-↓
-
-Monitoring Demo Service
-
-↓
-
-Monitoring Demo Pods
-
-↓
-
-PostgreSQL
-
-Prometheus continuously scrapes metrics from all Kubernetes components and the application.
-
-Grafana queries Prometheus to display dashboards.
-
----
-
-# High Availability
-
-The application is deployed with:
-
-- 2 replicas
-- Automatic pod scheduling
-- Kubernetes self-healing
-- Load balancing across replicas
-
-If one application pod fails:
-
-- Kubernetes automatically routes traffic to the healthy pod.
-- A replacement pod is created automatically.
+ │
+ ▼
+AWS Load Balancer (ELB)
+ │  a8d5ae08...us-east-1.elb.amazonaws.com:80
+ ▼
+monitoring-demo Service (LoadBalancer)
+ │
+ ▼
+monitoring-demo Pods (2 replicas)
+ │
+ ├──────────────────────────┐
+ ▼                          ▼
+PostgreSQL               /metrics endpoint
+(ClusterIP:5432)              │
+                              ▼
+                         ServiceMonitor
+                              │
+                              ▼
+                          Prometheus (StatefulSet)
+                              │
+                              ▼
+                       Grafana Dashboards
+```
 
 ---
 
-# Current Cluster Status
+## 🏥 Cluster Health
 
-- Cluster Status: Healthy
-- Worker Nodes: 3 Ready
-- Monitoring Stack: Running
-- Prometheus: Running
-- Grafana: Running
-- PostgreSQL: Running
-- Monitoring Application: Running (2 Pods)
+| Component | Status |
+|---|---|
+| Worker Nodes (3/3) | ✅ Ready |
+| Monitoring Demo App (2/2 pods) | ✅ Running |
+| Prometheus | ✅ Running |
+| Grafana | ✅ Running |
+| Alertmanager | ✅ Running |
+| PostgreSQL | ✅ Running |
+| Node Exporter (3/3 nodes) | ✅ Running |
+| kube-state-metrics | ✅ Running |
+| CoreDNS (2/2) | ✅ Running |
+| EBS CSI Driver | ✅ Running |
+
+---
+
+*Cluster: `monitoring-cluster` | Region: `us-east-1` | Version: `v1.31.14-eks-7d6f6ec`* 
