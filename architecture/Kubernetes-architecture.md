@@ -4,14 +4,14 @@
 
 This project is deployed on **Amazon Elastic Kubernetes Service (EKS)** in **AWS us-east-1**.
 
-Amazon EKS manages the Kubernetes **Control Plane**, while **2 Worker Nodes** run the application and monitoring workloads.
+Amazon EKS manages the Kubernetes Control Plane, while **2 Worker Nodes** run the application and monitoring workloads.
 
 ---
 
-# Cluster Information
+## Cluster Information
 
 | Property | Value |
-|----------|-------|
+|-----------|-------|
 | Cloud Provider | AWS |
 | Kubernetes Platform | Amazon EKS |
 | Cluster Name | monitoring-demo |
@@ -22,12 +22,12 @@ Amazon EKS manages the Kubernetes **Control Plane**, while **2 Worker Nodes** ru
 
 ---
 
-# Amazon EKS Kubernetes Architecture
+## Amazon EKS Kubernetes Architecture
 
 ```text
                                     AWS Cloud
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                            Amazon EKS Cluster                              │
+│                            Amazon EKS Cluster                               │
 │                                                                             │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
 │  │               EKS Control Plane (Managed by AWS)                      │  │
@@ -81,45 +81,58 @@ Amazon EKS manages the Kubernetes **Control Plane**, while **2 Worker Nodes** ru
                      Users
 ```
 
----
+## Architecture Explanation
 
-# Kubernetes Resources
-
-| Resource | Running | Verification Command |
-|----------|:-------:|----------------------|
-| Worker Nodes | **2** | `kubectl get nodes` |
-| Namespaces | **6** | `kubectl get ns` |
-| Deployments | **8** | `kubectl get deployments -A` |
-| ReplicaSets | **8** | `kubectl get rs -A` |
-| StatefulSets | **1** | `kubectl get statefulsets -A` |
-| DaemonSets | **6** | `kubectl get daemonsets -A` |
-| Pods | **21** | `kubectl get pods -A` |
-| Services | **18** | `kubectl get svc -A` |
-| Persistent Volume Claims | **1** | `kubectl get pvc -A` |
-| ConfigMaps | **38+** | `kubectl get configmaps -A` |
-| Secrets | **9** | `kubectl get secrets -A` |
-| Ingress | **0** | `kubectl get ingress -A` |
+- Amazon EKS provides a managed Kubernetes control plane.
+- The control plane contains the API Server, Scheduler, Controller Manager, and etcd.
+- Two worker nodes host the application and monitoring workloads.
+- kubelet manages Pods on each worker node, while kube-proxy handles networking.
+- Deployments manage stateless applications and ReplicaSets maintain the desired number of Pod replicas.
+- Prometheus runs as a StatefulSet to store monitoring data persistently.
+- DaemonSets run node-level services such as Node Exporter on every worker node.
+- Services enable communication between Pods and expose the application through an AWS Elastic Load Balancer.
+- PostgreSQL stores application data using an AWS EBS-backed Persistent Volume.
+- Prometheus collects metrics from Kubernetes, worker nodes, and the application, while Grafana visualizes them through dashboards.
 
 ---
 
-# Kubernetes Components
+## Kubernetes Resources
+
+| Resource | Running | Commands |
+|----------|--------:|-----------------------|
+| Worker Nodes | 2 | `kubectl get nodes` |
+| Namespaces | 6 | `kubectl get ns` |
+| Deployments | 8 | `kubectl get deployments -A` |
+| ReplicaSets | 8 | `kubectl get rs -A` |
+| StatefulSets | 1 | `kubectl get statefulsets -A` |
+| DaemonSets | 6 | `kubectl get daemonsets -A` |
+| Pods | 21 | `kubectl get pods -A` |
+| Services | 18 | `kubectl get svc -A` |
+| Persistent Volume Claims | 1 | `kubectl get pvc -A` |
+| ConfigMaps | 38+ | `kubectl get configmaps -A` |
+| Secrets | 9 | `kubectl get secrets -A` |
+| Ingress | 0 | `kubectl get ingress -A` |
+
+---
+
+## Kubernetes Components
 
 | Component | Running | Purpose |
-|-----------|:------:|---------|
-| Namespace | **6** | Logically separates Kubernetes resources. |
-| Pod | **21** | Smallest deployable unit that runs one or more containers. |
-| Deployment | **8** | Manages stateless applications and rolling updates. |
-| ReplicaSet | **8** | Ensures the required number of Pod replicas are running. |
-| StatefulSet | **1** | Manages stateful workloads with persistent storage. |
-| DaemonSet | **6** | Runs one Pod on every worker node. |
-| Service | **18** | Provides networking and communication between Pods. |
-| Persistent Volume Claim (PVC) | **1** | Requests persistent storage from Kubernetes. |
-| ConfigMap | **38+** | Stores non-sensitive application configuration. |
-| Secret | **9** | Stores sensitive information such as credentials. |
+|-----------|:-------:|---------|
+| Namespace | 6 | Logically separates Kubernetes resources. |
+| Pod | 21 | Smallest deployable unit that runs one or more containers. |
+| Deployment | 8 | Manages stateless applications and rolling updates. |
+| ReplicaSet | 8 | Ensures the required number of Pod replicas are running. |
+| StatefulSet | 1 | Manages stateful workloads with persistent storage. |
+| DaemonSet | 6 | Runs one Pod on every worker node. |
+| Service | 18 | Provides networking and communication between Pods. |
+| Persistent Volume Claim (PVC) | 1 | Requests persistent storage from Kubernetes. |
+| ConfigMap | 38+ | Stores non-sensitive application configuration. |
+| Secret | 9 | Stores sensitive information such as credentials. |
 
 ---
 
-# Monitoring Architecture
+## Monitoring Architecture
 
 ```text
                     Kubernetes Cluster
@@ -146,7 +159,7 @@ Node Exporter     kube-state-metrics     Application Metrics
 
 ---
 
-# Storage Architecture
+## Storage Architecture
 
 ```text
 PostgreSQL Pod
@@ -160,7 +173,7 @@ AWS EBS Persistent Volume
 
 ---
 
-# Useful Verification Commands
+## Commands
 
 | Purpose | Command |
 |---------|---------|
@@ -180,13 +193,13 @@ AWS EBS Persistent Volume
 
 ---
 
-# Summary
+## Summary
 
-- Amazon EKS manages the Kubernetes Control Plane.
-- Two worker nodes host the application and monitoring workloads.
-- Deployments manage stateless applications and ReplicaSets maintain Pod availability.
-- Prometheus runs as a StatefulSet with persistent storage.
-- DaemonSets run node-level services such as Node Exporter.
-- Services provide internal communication and expose the application through an AWS Load Balancer.
-- Grafana visualizes metrics collected by Prometheus.
-- PostgreSQL stores application data using an AWS EBS-backed Persistent Volume.
+- ✅ Amazon EKS manages the Kubernetes Control Plane.
+- ✅ Two worker nodes host the application and monitoring workloads.
+- ✅ Deployments manage stateless applications and ReplicaSets maintain Pod availability.
+- ✅ Prometheus runs as a StatefulSet with persistent storage.
+- ✅ DaemonSets run node-level services such as Node Exporter.
+- ✅ Services provide internal communication and expose the application through an AWS Load Balancer.
+- ✅ Grafana visualizes metrics collected by Prometheus.
+- ✅ PostgreSQL stores application data using an AWS EBS-backed Persistent Volume.
