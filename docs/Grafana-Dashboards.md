@@ -1,31 +1,78 @@
 # Grafana Dashboards
 
-The following dashboards are used during the monitoring.
+The following Grafana dashboards are used to monitor the Kubernetes cluster, worker nodes, and application during the demo.
 
 ---
 
 # 1. Node Exporter Full (Dashboard ID: 1860)
 
-Purpose
+## Purpose
 
-Monitor worker node health.
+Monitor Kubernetes worker node health and resource utilization.
 
-Key Panels
+## Key Panels
 
-* CPU Usage
-* Memory Usage
-* Disk Usage
-* Filesystem Usage
-* Network Traffic
-* Load Average
+- CPU Usage
+- Memory Usage
+- Disk Usage
+- Filesystem Usage
+- Network Traffic
+- System Load
+- Uptime
 
-If No Data
+## Metrics Source
 
-* Node Exporter Pod not running
-* Prometheus target Down
-* Wrong datasource
+- Node Exporter
 
-Verify
+## If No Data
+
+Possible reasons
+
+- Node Exporter Pod not running
+- Prometheus target is Down
+- Wrong Prometheus datasource selected
+
+## Verify
+
+```bash
+kubectl get pods -n monitoring
+kubectl get daemonset -n monitoring
+```
+
+---
+
+# 2. Kubernetes Cluster Monitoring
+
+## Purpose
+
+Monitor overall Kubernetes cluster health and resource usage.
+
+## Key Panels
+
+- Cluster CPU Usage
+- Cluster Memory Usage
+- Cluster Disk Usage
+- Node Count
+- Running Pods
+- Deployments
+- Container Status
+- Namespace Resource Usage
+
+## Metrics Source
+
+- Prometheus
+- kube-state-metrics
+- Node Exporter
+
+## If No Data
+
+Possible reasons
+
+- kube-state-metrics not running
+- Prometheus target Down
+- Wrong namespace selected
+
+## Verify
 
 ```bash
 kubectl get pods -n monitoring
@@ -33,79 +80,70 @@ kubectl get pods -n monitoring
 
 ---
 
-# 2. Kubernetes Cluster Monitoring (Dashboard ID: 15757)
+# 3. Kubernetes Deployment / StatefulSet / DaemonSet Metrics
 
-Purpose
+## Purpose
 
-Monitor overall Kubernetes cluster.
+Monitor Kubernetes workloads and application resources.
 
-Key Panels
+## Key Panels
 
-* Cluster CPU
-* Cluster Memory
-* Node Count
-* Pod Count
-* Namespace Usage
-* Resource Usage
+- Deployment CPU Usage
+- Deployment Memory Usage
+- Available Replicas
+- Unavailable Replicas
+- Cluster CPU
+- Cluster Memory
+- Disk Usage
+- Network I/O
 
-If No Data
+## Metrics Source
 
-* kube-state-metrics unavailable
-* Prometheus target Down
+- Prometheus
+- kube-state-metrics
+- cAdvisor
 
-Verify
-
-```bash
-kubectl get pods -n monitoring
-```
-
----
-
-# 3. Kubernetes Pods (Dashboard ID: 6417)
-
-Purpose
-
-Monitor application pods.
-
-Key Panels
-
-* Pod CPU
-* Pod Memory
-* Pod Restarts
-* Network Usage
-* Pod Status
-
-If No Data
-
-Check
-
-```bash
-kubectl get pods -A
-```
-
-Pods should be Running.
-
----
-
-# 4. Kubernetes Deployment (Dashboard ID: 8588)
-
-Purpose
-
-Monitor deployments.
-
-Key Panels
-
-* Available Replicas
-* Desired Replicas
-* Deployment Status
-* Replica Count
-
-If No Data
+## If No Data
 
 Check
 
 ```bash
 kubectl get deployment -A
+kubectl get statefulset -A
+kubectl get daemonset -A
+```
+
+---
+
+# 4. Kubernetes Views / Global
+
+## Purpose
+
+Monitor overall cluster utilization and Kubernetes resources.
+
+## Key Panels
+
+- Global CPU Usage
+- Global Memory Usage
+- Running Pods
+- Running Containers
+- CPU by Namespace
+- Memory by Namespace
+- Node Utilization
+- Network Utilization
+
+## Metrics Source
+
+- Prometheus
+- kube-state-metrics
+- Node Exporter
+
+## If No Data
+
+Check
+
+```bash
+kubectl get pods -n monitoring
 ```
 
 ---
@@ -116,14 +154,14 @@ kubectl get deployment -A
 
 Possible reasons
 
-* Wrong Prometheus datasource
-* Prometheus not running
-* Node Exporter not running
-* kube-state-metrics not running
-* Wrong dashboard variables
-* Wrong namespace selected
-* No application traffic
-* Time range too short
+- Wrong Prometheus datasource
+- Prometheus not running
+- Node Exporter not running
+- kube-state-metrics not running
+- Wrong dashboard variables
+- Wrong namespace selected
+- No application traffic
+- Time range too short
 
 ---
 
@@ -131,21 +169,17 @@ Possible reasons
 
 Grafana
 
-Settings
-
-↓
-
+```
+Connections
+    ↓
 Data Sources
-
-↓
-
+    ↓
 Prometheus
+    ↓
+Save & Test
+```
 
-↓
-
-Test Connection
-
-Should display:
+Expected Result
 
 ```
 Datasource is working
@@ -153,17 +187,17 @@ Datasource is working
 
 ---
 
-## Check Targets
+## Check Prometheus Targets
 
 Open Prometheus
 
+```
 Status
-
-↓
-
+   ↓
 Targets
+```
 
-Every target should be:
+Every target should be
 
 ```
 UP
@@ -178,27 +212,28 @@ Generate application traffic
 ```bash
 while true
 do
-curl http://<LOAD_BALANCER_URL>
-sleep 1
+  curl http://<LOAD_BALANCER_URL>
+  sleep 1
 done
 ```
 
-Stop:
+Stop
 
-```
+```text
 Ctrl + C
 ```
 
-Within a few seconds, CPU, Requests/sec, Network, and Pod graphs should update automatically.
+Within a few seconds, the CPU, Memory, Network, Requests/sec, and Pod graphs will update automatically.
 
 ---
 
-# Dashboards
+# Dashboards Used
 
+| Dashboard | Purpose |
+|------------|---------|
+| **Node Exporter Full (1860)** | Worker node monitoring |
+| **Kubernetes Cluster Monitoring** | Cluster health and resource usage |
+| **Kubernetes Deployment / StatefulSet / DaemonSet Metrics** | Workload monitoring |
+| **Kubernetes Views / Global** | Overall cluster utilization |
 
-1. Node Exporter Full (1860)
-2. Kubernetes Cluster (15757)
-3. Kubernetes Pods (6417)
-4. Kubernetes Deployment (8588)
-
-These four dashboards demonstrate infrastructure health, Kubernetes resource status, application performance, and deployment health, covering all the monitoring capabilities implemented in this project.
+These dashboards together demonstrate infrastructure health, Kubernetes resource status, workload monitoring, node utilization, and application performance for the monitoring demo.
