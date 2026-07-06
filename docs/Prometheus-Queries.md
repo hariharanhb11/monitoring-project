@@ -6,17 +6,19 @@ This document contains the Prometheus (PromQL) queries used during the monitorin
 
 ---
 
-# 1. Node CPU Usage
+## 1. Worker Node CPU Usage
 
 ### Query
 
 ```promql
-rate(node_cpu_seconds_total{mode!="idle"}[5m])
+sum by (instance) (
+  rate(node_cpu_seconds_total{mode!="idle"}[5m])
+)
 ```
 
 ### Purpose
 
-Shows the CPU utilization of each Kubernetes worker node.
+Displays the overall CPU utilization of each Kubernetes worker node by combining the usage of all CPU cores.
 
 ### Graph Details
 
@@ -24,14 +26,18 @@ Shows the CPU utilization of each Kubernetes worker node.
 |----------|-------------|
 | **X-Axis** | Time |
 | **Y-Axis** | CPU Usage (CPU seconds/second) |
-| **Each Line** | One CPU core of a worker node |
+| **Each Line** | One Kubernetes worker node |
 
 ### Expected Result
 
-- Stable values when the cluster is idle.
+- One graph line is displayed for each worker node.
+- CPU usage remains low when the cluster is idle.
 - CPU usage increases when application traffic increases.
 
----
+**Example (2 Worker Nodes)**
+
+- Line 1 → Worker Node 1
+- Line 2 → Worker Node 2
 
 # 2. Node Memory Usage
 
