@@ -1,6 +1,6 @@
 # Grafana Dashboards
 
-The following Grafana dashboards are used to monitor the Kubernetes cluster, worker nodes, and application during the demo.
+The following Grafana dashboards are used to monitor the Kubernetes cluster, worker nodes, and application.
 
 ---
 

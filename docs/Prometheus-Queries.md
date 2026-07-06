@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document contains the Prometheus (PromQL) queries used during the monitoring demo along with an explanation of what each graph represents and how to interpret it.
+This document contains the Prometheus (PromQL) queries used during the monitoring.
 
 ---
 
