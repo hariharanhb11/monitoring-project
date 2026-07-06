@@ -13,3 +13,4 @@ alertmanager:
 
     templates:
       - "/etc/alertmanager/config/*.tmpl"
+      
