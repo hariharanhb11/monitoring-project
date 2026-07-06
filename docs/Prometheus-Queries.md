@@ -1,6 +1,8 @@
-# Prometheus Queries
+# 📈 Prometheus Queries
 
-This document contains the Prometheus queries used during the monitoring demo along with an explanation of each graph.
+## Overview
+
+This document contains the Prometheus (PromQL) queries used during the monitoring demo along with an explanation of what each graph represents and how to interpret it.
 
 ---
 
@@ -14,18 +16,20 @@ rate(node_cpu_seconds_total{mode!="idle"}[5m])
 
 ### Purpose
 
-Shows CPU usage of each Kubernetes worker node.
+Shows the CPU utilization of each Kubernetes worker node.
 
-### Graph
+### Graph Details
 
-* **X-Axis:** Time
-* **Y-Axis:** CPU seconds per second (CPU utilization rate)
-* **Each Line:** One CPU core of one worker node
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | CPU Usage (CPU seconds/second) |
+| **Each Line** | One CPU core of a worker node |
 
 ### Expected Result
 
-* Stable line during idle
-* Line increases when application traffic increases
+- Stable values when the cluster is idle.
+- CPU usage increases when application traffic increases.
 
 ---
 
@@ -39,17 +43,24 @@ node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
 
 ### Purpose
 
-Shows RAM currently being used.
+Displays the amount of RAM currently being used on each worker node.
 
-### Graph
+### Graph Details
 
-* X-Axis → Time
-* Y-Axis → Bytes
-* Each Line → One Kubernetes node
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Memory Used (Bytes/GiB) |
+| **Each Line** | One Kubernetes worker node |
+
+### Expected Result
+
+- Memory usage remains relatively stable.
+- Usage increases as more applications or workloads run.
 
 ---
 
-# 3. Memory Percentage
+# 3. Memory Utilization (%)
 
 ### Query
 
@@ -59,11 +70,24 @@ Shows RAM currently being used.
 
 ### Purpose
 
-Shows percentage of memory utilization.
+Shows memory utilization as a percentage.
+
+### Graph Details
+
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Memory Utilization (%) |
+| **Each Line** | One Kubernetes worker node |
+
+### Expected Result
+
+- Displays the percentage of RAM currently in use.
+- Higher values indicate increased memory consumption.
 
 ---
 
-# 4. Filesystem Usage
+# 4. Filesystem (Disk) Usage
 
 ### Query
 
@@ -76,17 +100,24 @@ node_filesystem_size_bytes
 
 ### Purpose
 
-Displays disk usage percentage.
+Displays disk usage percentage for mounted filesystems.
 
-### Graph
+### Graph Details
 
-* X-Axis → Time
-* Y-Axis → Percentage (%)
-* Each Line → Mounted filesystem
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Disk Usage (%) |
+| **Each Line** | One mounted filesystem |
+
+### Expected Result
+
+- Disk usage changes slowly over time.
+- Helps identify storage consumption.
 
 ---
 
-# 5. Network Receive
+# 5. Network Receive Traffic
 
 ### Query
 
@@ -96,17 +127,23 @@ rate(node_network_receive_bytes_total[5m])
 
 ### Purpose
 
-Incoming network traffic.
+Shows incoming network traffic received by each network interface.
 
-### Graph
+### Graph Details
 
-* X-Axis → Time
-* Y-Axis → Bytes/sec
-* Each Line → Network Interface
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Bytes/sec |
+| **Each Line** | One network interface |
+
+### Expected Result
+
+- Traffic increases when clients send requests to the application.
 
 ---
 
-# 6. Network Transmit
+# 6. Network Transmit Traffic
 
 ### Query
 
@@ -116,25 +153,23 @@ rate(node_network_transmit_bytes_total[5m])
 
 ### Purpose
 
-Outgoing network traffic.
+Shows outgoing network traffic from each worker node.
+
+### Graph Details
+
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Bytes/sec |
+| **Each Line** | One network interface |
+
+### Expected Result
+
+- Outgoing traffic increases when the application sends responses.
 
 ---
 
-# 7. Node Load
-
-### Query
-
-```promql
-node_load1
-```
-
-### Purpose
-
-Average CPU load over the last minute.
-
----
-
-# 8. Running Pods
+# 7. Running Pods
 
 ### Query
 
@@ -144,11 +179,23 @@ count(kube_pod_status_phase{phase="Running"})
 
 ### Purpose
 
-Displays total running pods in the cluster.
+Displays the total number of running Pods in the Kubernetes cluster.
+
+### Graph Details
+
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Number of Running Pods |
+| **Graph Type** | Single line |
+
+### Expected Result
+
+- Should remain stable unless Pods are created or deleted.
 
 ---
 
-# 9. Running Nodes
+# 8. Running Worker Nodes
 
 ### Query
 
@@ -158,15 +205,27 @@ count(kube_node_info)
 
 ### Purpose
 
-Displays total worker nodes.
+Shows the total number of Kubernetes worker nodes.
 
-Expected Result:
+### Graph Details
 
-3
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Number of Worker Nodes |
+| **Graph Type** | Single line |
+
+### Expected Result
+
+For this project:
+
+```
+2
+```
 
 ---
 
-# 10. Deployment Replicas
+# 9. Deployment Replicas
 
 ### Query
 
@@ -176,11 +235,24 @@ kube_deployment_status_replicas_available
 
 ### Purpose
 
-Shows available replicas for each deployment.
+Shows the number of available replicas for each deployment.
+
+### Graph Details
+
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Number of Available Replicas |
+| **Each Line** | One Kubernetes Deployment |
+
+### Expected Result
+
+- Replica count matches the desired deployment replicas.
+- Helps identify unavailable deployments.
 
 ---
 
-# 11. Pod Restarts
+# 10. Pod Restarts
 
 ### Query
 
@@ -190,11 +262,24 @@ increase(kube_pod_container_status_restarts_total[1h])
 
 ### Purpose
 
-Shows restarted containers during the last hour.
+Shows the number of container restarts during the last hour.
+
+### Graph Details
+
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Restart Count |
+| **Each Line** | One Pod |
+
+### Expected Result
+
+- Normally remains **0**.
+- Any increase may indicate application or container issues.
 
 ---
 
-# 12. Application Requests
+# 11. Application Requests
 
 ### Query
 
@@ -204,13 +289,40 @@ rate(http_requests_total[1m])
 
 ### Purpose
 
-Shows incoming HTTP requests to the application.
+Shows the incoming HTTP requests handled by the application.
 
-Generate traffic to see this graph increase.
+### Graph Details
+
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Requests per Second (Req/s) |
+| **Graph Type** | Single line |
+
+### Expected Result
+
+- Increases when users access the application.
+- Useful for demonstrating live traffic.
+
+### Generate Sample Traffic
+
+```bash
+while true
+do
+  curl http://<LOAD_BALANCER_URL>
+  sleep 1
+done
+```
+
+Stop:
+
+```bash
+Ctrl + C
+```
 
 ---
 
-# 13. Application Up
+# 12. Application Health
 
 ### Query
 
@@ -220,16 +332,26 @@ up{job="monitoring-demo"}
 
 ### Purpose
 
-Checks whether Prometheus can scrape the application.
+Checks whether Prometheus can successfully scrape the application metrics.
 
-Values:
+### Graph Details
 
-* 1 = Healthy
-* 0 = Down
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Health Status |
+| **Graph Type** | Single line |
+
+### Values
+
+| Value | Meaning |
+|------:|---------|
+| **1** | Application is healthy and being scraped |
+| **0** | Application is down or unreachable |
 
 ---
 
-# 14. Prometheus Targets
+# 13. Prometheus Targets Health
 
 ### Query
 
@@ -239,7 +361,20 @@ up
 
 ### Purpose
 
-Shows the health of all scrape targets.
+Shows the health status of all Prometheus scrape targets.
+
+### Graph Details
+
+| Property | Description |
+|----------|-------------|
+| **X-Axis** | Time |
+| **Y-Axis** | Target Status |
+| **Each Line** | One Prometheus target |
+
+### Expected Result
+
+- All targets should remain at **1 (UP)**.
+- Any target showing **0** indicates a scraping or connectivity issue.
 
 ---
 
@@ -247,85 +382,94 @@ Shows the health of all scrape targets.
 
 ## X-Axis
 
-Always represents **Time**.
+Represents **Time**.
 
-Example:
+Examples:
 
-* Last 5 minutes
-* Last 1 hour
-* Last 24 hours
+- Last 5 Minutes
+- Last 1 Hour
+- Last 24 Hours
 
 ---
 
 ## Y-Axis
 
-Represents the value returned by the query.
+Represents the value returned by the PromQL query.
 
 Examples:
 
-* CPU %
-* Memory Bytes
-* Requests/sec
-* Network Bytes/sec
-* Number of Pods
+- CPU Usage
+- Memory Usage
+- Disk Usage
+- Requests per Second
+- Network Traffic
+- Running Pods
+- Running Nodes
 
 ---
 
 ## Graph Lines
 
-Each colored line represents one metric series.
+Each colored line represents a different metric series.
 
 Examples:
 
-* One Kubernetes Node
-* One CPU Core
-* One Pod
-* One Network Interface
-
----
-
-# If Graph Shows "No Data"
-
-Possible reasons:
-
-* Exporter pod not running
-* Target is Down
-* Wrong PromQL query
-* Application not generating metrics
-* Wrong time range selected
-* ServiceMonitor not configured
-* Metrics endpoint unavailable
+- One Worker Node
+- One CPU Core
+- One Deployment
+- One Pod
+- One Network Interface
 
 ---
 
 # Troubleshooting
 
-Check Prometheus Targets
+If a graph displays **No Data**, check the following:
 
-```
-Status → Targets
-```
+- Prometheus is running.
+- Node Exporter is running.
+- kube-state-metrics is running.
+- ServiceMonitor is configured.
+- Application metrics endpoint is reachable.
+- Prometheus targets are **UP**.
+- Correct PromQL query is used.
+- Dashboard time range is appropriate.
 
-All targets should be **UP**.
-
-Check ServiceMonitor
-
-```bash
-kubectl get servicemonitor -n monitoring
-```
-
-Check Application
+Useful commands:
 
 ```bash
 kubectl get pods -n monitoring
 ```
 
-Check Metrics Endpoint
-
-```
-http://<application>/metrics
+```bash
+kubectl get servicemonitor -n monitoring
 ```
 
-Verify Prometheus is scraping the application.
+Open Prometheus:
 
-Generate application traffic and refresh the graph.
+**Status → Targets**
+
+All targets should display:
+
+```
+UP
+```
+
+---
+
+# Summary
+
+These Prometheus queries demonstrate the key monitoring capabilities of the project:
+
+- ✅ Node CPU Usage
+- ✅ Node Memory Usage
+- ✅ Memory Utilization
+- ✅ Filesystem (Disk) Usage
+- ✅ Network Traffic (Receive & Transmit)
+- ✅ Running Pods
+- ✅ Running Worker Nodes
+- ✅ Deployment Replicas
+- ✅ Pod Restarts
+- ✅ Application Request Rate
+- ✅ Application Health
+- ✅ Prometheus Target Health
